@@ -27,9 +27,10 @@ az dt twin relationship create --dt-name $ADTInstanceName --relationship "contai
 az dt twin relationship create --dt-name $ADTInstanceName --relationship "definedby" --relationship-id "Projector01ToTemperatureSensor01" --source "Projector01" --target "TemperatureSensor01" --properties "relProps.json"
 
 // Create event grid topic for change propagation and install event route
-az eventgrid topic create --name $ADTInstanceName -g genchangeproprg
+az eventgrid topic create --name $ADTInstanceName -g $ResourceGroup
 az dt endpoint create eventgrid --dt-name $ADTInstanceName --eventgrid-resource-group genchangeproprg --eventgrid-topic genchangepropadt --endpoint-name genchangepropeg01
-az dt route create --dt-name $ADTInstanceName --endpoint-name genchangepropeg01 --route-name devicePropChanges
+az dt route create --dt-name $ADTInstanceName --endpoint-name genchangepropeg01 --route-name devicePropChanges `
+    --filter "(type = Microsoft.DigitalTwins.Twin.Update) AND (`$body.modelId = 'dtmi:sample:genpropchanges:Device;1')"
 
 // Create Function App for change propagation
 az storage account create --name "genchangepropadtfuncdata" --sku Standard_LRS
@@ -41,5 +42,7 @@ az functionapp config appsettings set -n genchangepropadtfuncs --settings $ADTSe
 
 // Create Event grid topic subscription for Function App
 $SubID=$(az account show --query "id" -o tsv)
-az eventgrid system-topic event-subscription create -n devicechangehdl --system-topic-name $ADTInstanceName `
-    --endpoint /subscriptions/$SubID/resourceGroups/$ResourceGroup/providers/Microsoft.Web/sites/genchangepropadtfuncs/functions/DeviceChangePropagation --endpoint-type azurefunction
+az eventgrid event-subscription create -n devicechangehdl `
+    --source-resource-id /subscriptions/$SubID/resourceGroups/$ResourceGroup/providers/Microsoft.EventGrid/topics/$ADTInstanceName `
+    --endpoint /subscriptions/$SubID/resourceGroups/$ResourceGroup/providers/Microsoft.Web/sites/genchangepropadtfuncs/functions/DeviceChangePropagation --endpoint-type azurefunction `
+    --advanced-filter data.modelId StringIn "dtmi:sample:genpropchanges:Device;1"
