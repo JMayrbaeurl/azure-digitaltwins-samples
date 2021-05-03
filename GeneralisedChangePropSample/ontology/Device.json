@@ -1,0 +1,13 @@
+{
+    "@id": "dtmi:sample:genpropchanges:Device;1",
+    "@type": "Interface",
+    "contents": [
+        {
+            "@type": "Property",
+            "name": "TemperatureLastValue",
+            "schema": "float",
+            "writable": true
+        }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+}

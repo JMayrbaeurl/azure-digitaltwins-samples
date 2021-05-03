@@ -1,0 +1,37 @@
+{
+    "@id": "dtmi:sample:genpropchanges:Asset;1",
+    "@type": "Interface",
+    "contents": [
+        {
+            "@type": "Property",
+            "name": "Temperature",
+            "schema": "float",
+            "writable": true
+        }, 
+        {
+            "@type": "Relationship",
+            "name": "contains",
+            "target": "dtmi:sample:genpropchanges:Asset;1",
+            "writable": true
+        },
+        {
+            "@type": "Relationship",
+            "name": "definedby",
+            "target": "dtmi:sample:genpropchanges:Device;1",
+            "properties": [
+                {
+                    "@type": "Property",
+                    "name": "propPath",
+                    "schema": "string"
+                },
+                {
+                    "@type": "Property",
+                    "name": "devicePropPath",
+                    "schema": "string"
+                }
+            ],
+            "writable": true
+        }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+}
