@@ -30,7 +30,7 @@ az dt twin relationship create --dt-name $ADTInstanceName --relationship "define
 az eventgrid topic create --name $ADTInstanceName -g $ResourceGroup
 az dt endpoint create eventgrid --dt-name $ADTInstanceName --eventgrid-resource-group genchangeproprg --eventgrid-topic genchangepropadt --endpoint-name genchangepropeg01
 az dt route create --dt-name $ADTInstanceName --endpoint-name genchangepropeg01 --route-name devicePropChanges `
-    --filter "(type = Microsoft.DigitalTwins.Twin.Update) AND (`$body.modelId = 'dtmi:sample:genpropchanges:Device;1')"
+    --filter "(type = 'Microsoft.DigitalTwins.Twin.Update') AND (`$body.modelId = 'dtmi:sample:genpropchanges:Device;1')"
 
 // Create Function App for change propagation
 az storage account create --name "genchangepropadtfuncdata" --sku Standard_LRS
@@ -41,8 +41,9 @@ $ADTServiceURL = "ADT_SERVICE_URL=https://" + $ADTInstanceName + ".api.neu.digit
 az functionapp config appsettings set -n genchangepropadtfuncs --settings $ADTServiceURL
 
 // Create Event grid topic subscription for Function App
+// Filter with --advanced-filter data.modelId StringIn "dtmi:sample:genpropchanges:Device;1" doesnt work, but is not necessary, since event route filtering already active
 $SubID=$(az account show --query "id" -o tsv)
 az eventgrid event-subscription create -n devicechangehdl `
     --source-resource-id /subscriptions/$SubID/resourceGroups/$ResourceGroup/providers/Microsoft.EventGrid/topics/$ADTInstanceName `
-    --endpoint /subscriptions/$SubID/resourceGroups/$ResourceGroup/providers/Microsoft.Web/sites/genchangepropadtfuncs/functions/DeviceChangePropagation --endpoint-type azurefunction `
-    --advanced-filter data.modelId StringIn "dtmi:sample:genpropchanges:Device;1"
+    --endpoint /subscriptions/$SubID/resourceGroups/$ResourceGroup/providers/Microsoft.Web/sites/genchangepropadtfuncs/functions/DeviceChangePropagation --endpoint-type azurefunction
+    
