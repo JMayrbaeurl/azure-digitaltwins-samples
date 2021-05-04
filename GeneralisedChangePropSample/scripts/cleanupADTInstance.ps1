@@ -14,6 +14,7 @@ az dt twin relationship delete --dt-name $ADTInstanceName --relationship-id "Pro
 az dt twin delete --dt-name $ADTInstanceName --twin-id "Room01"
 az dt twin delete --dt-name $ADTInstanceName --twin-id "Projector01"
 az dt twin delete --dt-name $ADTInstanceName --twin-id "TemperatureSensor01"
+az dt twin delete --dt-name $ADTInstanceName --twin-id "TemperatureSensor02"
 
 az dt model delete --dt-name $ADTInstanceName --dtmi "dtmi:sample:genpropchanges:Device;1"
 az dt model delete --dt-name $ADTInstanceName --dtmi "dtmi:sample:genpropchanges:Asset;1"

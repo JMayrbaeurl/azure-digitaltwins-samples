@@ -3,7 +3,7 @@ param (
     [string]$Location = "northeurope",
     [string]$ResourceGroup = "genchangeproprg",
     [string]$ADTInstanceName = "genchangepropadt",
-    [string]$ADTDataowner = "xxx@microsoft.com"
+    [string]$ADTDataowner = $(az account show --query user.name -o tsv)
 )
 
 // Create resource group
@@ -19,10 +19,11 @@ az dt role-assignment create --dt-name $ADTInstanceName --assignee $ADTDataowner
 az dt model create --dt-name $ADTInstanceName --from-directory ".\\ontology"
 
 // Create Twins
-az dt twin create --dt-name $ADTInstanceName --dtmi "dtmi:sample:genpropchanges:Device;1" --twin-id "TemperatureSensor01"
-az dt twin create --dt-name $ADTInstanceName --dtmi "dtmi:sample:genpropchanges:Asset;1" --twin-id "Room01"
+az dt twin create --dt-name $ADTInstanceName --dtmi "dtmi:sample:genpropchanges:Device;1" --twin-id "TemperatureSensor01" --properties '{\"TemperatureLastValue\" : 0 }'
+az dt twin create --dt-name $ADTInstanceName --dtmi "dtmi:sample:genpropchanges:Device;1" --twin-id "TemperatureSensor02" --properties '{\"TemperatureLastValue\" : 0 }'
+az dt twin create --dt-name $ADTInstanceName --dtmi "dtmi:sample:genpropchanges:Asset;1" --twin-id "Room01" --properties '{\"Temperature\" : 0 }'
 az dt twin relationship create --dt-name $ADTInstanceName --relationship "definedby" --relationship-id "Room01ToTemperatureSensor01" --source "Room01" --target "TemperatureSensor01" --properties "relProps.json"
-az dt twin create --dt-name $ADTInstanceName --dtmi "dtmi:sample:genpropchanges:Asset;1" --twin-id "Projector01"
+az dt twin create --dt-name $ADTInstanceName --dtmi "dtmi:sample:genpropchanges:Asset;1" --twin-id "Projector01" --properties '{\"Temperature\" : 0 }'
 az dt twin relationship create --dt-name $ADTInstanceName --relationship "contains" --relationship-id "Room01Projector01" --source "Room01" --target "Projector01"
 az dt twin relationship create --dt-name $ADTInstanceName --relationship "definedby" --relationship-id "Projector01ToTemperatureSensor01" --source "Projector01" --target "TemperatureSensor01" --properties "relProps.json"
 
